@@ -1,7 +1,6 @@
 const express = require('express');
 const auth = require('../middleware/auth');
 const Game = require('../models/Game');
-const User = require('../models/User');
 
 const router = express.Router();
 
@@ -32,31 +31,19 @@ router.get('/', auth, async (req, res) => {
 router.post('/join/:gameId', auth, async (req, res) => {
     try {
         let game = await Game.findById(req.params.gameId);
-        if (!game) return res.status(404).json({ msg: 'Game not found' });
+        if (!game) {
+            console.log('Game not found');
+            return res.status(404).json({ msg: 'Game not found' });
+        }
 
-        if (game.player2) return res.status(400).json({ msg: 'Game is already full' });
+        if (game.player2) {
+            console.log('Game is already full');
+            return res.status(400).json({ msg: 'Game is already full' });
+        }
 
         game.player2 = req.user.id;
         await game.save();
-        res.json(game);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
-
-// Move a piece
-router.post('/move', auth, async (req, res) => {
-    const { gameId, from, to } = req.body;
-    try {
-        const game = await Game.findById(gameId);
-        if (!game) return res.status(404).json({ msg: 'Game not found' });
-
-        // Add logic to validate the move and update the board state
-        // For now, let's just log the move
-        console.log(`Move from ${from} to ${to}`);
-
-        await game.save();
+        console.log('Joined game:', game);
         res.json(game);
     } catch (err) {
         console.error(err.message);

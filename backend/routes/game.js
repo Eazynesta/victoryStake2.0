@@ -51,4 +51,18 @@ router.post('/join/:gameId', auth, async (req, res) => {
     }
 });
 
+// Fetch a specific game by ID
+router.get('/:gameId', auth, async (req, res) => {
+    try {
+        const game = await Game.findById(req.params.gameId).populate('player1', 'username').populate('player2', 'username');
+        if (!game) {
+            return res.status(404).json({ msg: 'Game not found' });
+        }
+        res.json(game);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;
